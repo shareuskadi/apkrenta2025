@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renta Bizkaia - Backup</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; background: #f5f3ee; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+.card { background: white; border-radius: 16px; padding: 32px 24px; text-align: center; max-width: 380px; width: 100%; box-shadow: 0 8px 32px rgba(26,26,22,0.12); }
+.icon { font-size: 52px; margin-bottom: 12px; }
+h2 { color: #1a1a16; margin: 0 0 6px; font-size: 1.25rem; }
+.subtitle { color: #8a8780; font-size: 0.85rem; margin-bottom: 20px; }
+.fname { font-weight: 600; color: #1a1a16; font-size: 0.82rem; background: #f0ede6; padding: 8px 12px; border-radius: 8px; margin-bottom: 22px; word-break: break-all; }
+.loading { color: #8a8780; font-size: 0.9rem; margin: 16px 0; }
+button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin: 5px 0; font-family: inherit; }
+.btn-share { background: #1a1a16; color: white; }
+.btn-download { background: #1a6b30; color: white; }
+.back-hint { margin-top: 18px; color: #ccc8be; font-size: 0.82rem; padding: 10px 12px; background: #f0ede6; border-radius: 8px; border: 1px dashed #e0dbd0; line-height: 1.5; }
+.back-hint b { color: #8a8780; }
+.error { color: #8b1f1f; font-size: 0.83rem; margin-top: 14px; padding: 10px; background: #fdf0f0; border-radius: 8px; display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">&#128190;</div>
+  <h2>Backup listo</h2>
+  <div class="subtitle">Guarda o comparte tu copia de seguridad</div>
+  <div class="fname" id="fname">Generando...</div>
+  <div class="loading" id="loading">Espera un momento...</div>
+  <div id="buttons" style="display:none">
+    <button class="btn-share" onclick="compartir()">&#8599; Compartir (WhatsApp, email, Drive...)</button>
+    <button class="btn-download" onclick="descargar()">&#8595; Guardar en el movil</button>
+  </div>
+  <div class="back-hint">&#8592; Pulsa la flecha <b>Atras</b> del movil para volver a la app</div>
+  <div class="error" id="error"></div>
+</div>
+
+<script>
+var fileBlob = null;
+var filename = 'backup_renta_bizkaia.json';
+
+function showError(msg) {
+  var el = document.getElementById('error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('loading').style.display = 'none';
+}
+
+function ready(blob, fname) {
+  fileBlob = blob;
+  filename = fname;
+  document.getElementById('fname').textContent = fname;
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('buttons').style.display = 'block';
+}
+
+function initBackup(encoded) {
+  try {
+    var payload = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    var blob = new Blob([JSON.stringify(payload.content, null, 2)], { type: 'application/json' });
+    ready(blob, payload.filename || 'backup_renta_bizkaia.json');
+  } catch (e) {
+    showError('Error al leer los datos: ' + e.message);
+  }
+}
+
+function compartir() {
+  if (!fileBlob) return;
+  try {
+    var file = new File([fileBlob], filename, { type: fileBlob.type });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ title: filename, files: [file] }).catch(function(e) {
+        if (e.name !== 'AbortError') descargar();
+      });
+      return;
+    }
+  } catch (e) {}
+  descargar();
+}
+
+function descargar() {
+  if (!fileBlob) return;
+  try {
+    var url = URL.createObjectURL(fileBlob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+  } catch (e) {
+    showError('Error: ' + e.message);
+  }
+}
+
+window.onload = function() {
+  var params = new URLSearchParams(window.location.search);
+  var encoded = params.get('d');
+  if (!encoded) {
+    showError('No se recibieron datos. Vuelve a la app e intentalo de nuevo.');
+    return;
+  }
+  initBackup(encoded);
+};
+</script>
+</body>
+</html>
