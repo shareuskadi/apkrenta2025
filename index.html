@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renta Bizkaia 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ee;
+  --surface: #ffffff;
+  --surface2: #f0ede6;
+  --border: #e0dbd0;
+  --border2: #ccc8be;
+  --text: #1a1a16;
+  --muted: #8a8780;
+  --accent: #1a1a16;
+  --green: #1a6b30;
+  --green-bg: #edf7f0;
+  --red: #8b1f1f;
+  --red-bg: #fdf0f0;
+  --amber: #7a5c00;
+  --amber-bg: #fdf8e6;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 4rem; }
+.wrap { max-width: 680px; margin: 0 auto; }
+
+/* Header */
+.header { margin-bottom: 2rem; }
+.header h1 { font-size: 26px; font-weight: 600; letter-spacing: -.5px; }
+.header p { font-size: 13px; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 10px; padding: 4px; margin-bottom: 1.5rem; border: 1px solid var(--border); }
+.tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 500; border-radius: 7px; cursor: pointer; color: var(--muted); transition: all .15s; border: none; background: none; font-family: var(--sans); }
+.tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+/* Cards */
+.card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; font-family: var(--mono); }
+
+/* Form */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.f { display: flex; flex-direction: column; gap: 4px; }
+.lbl { font-size: 11px; color: var(--muted); font-weight: 500; }
+.hlbl { font-size: 10px; color: var(--border2); line-height: 1.4; }
+input[type=number], select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; color: var(--text); background: var(--surface);
+  outline: none; font-family: var(--mono); transition: border-color .15s;
+}
+input[type=number]:focus, select:focus { border-color: var(--text); }
+.mt { margin-top: 10px; }
+
+/* Tabla nóminas */
+.month-grid { width: 100%; border-collapse: collapse; }
+.month-grid th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 0 6px 8px; text-align: left; font-family: var(--mono); }
+.month-grid th:not(:first-child) { text-align: right; }
+.month-grid td { padding: 3px 6px; vertical-align: middle; }
+.month-grid tr:not(:last-child) td { border-bottom: 1px solid var(--surface2); }
+.month-name { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.month-name.future { color: var(--border2); font-style: italic; }
+.month-name-wrap { display: flex; align-items: center; gap: 6px; }
+.month-grid input[type=number] {
+  padding: 6px 8px; font-size: 13px; border-radius: 6px; text-align: right;
+  background: var(--surface2); border-color: transparent;
+}
+.month-grid input[type=number]:focus { background: var(--surface); border-color: var(--text); }
+.month-grid input[type=number].projected { color: var(--border2); font-style: italic; }
+.proj-badge { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--border2); font-family: var(--mono); padding: 2px 6px; background: var(--surface2); border-radius: 4px; }
+
+/* Resultado */
+.result-card { border-radius: 14px; border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1rem; }
+.result-card.verde { background: var(--green-bg); border-color: #b8dfc4; }
+.result-card.rojo  { background: var(--red-bg);   border-color: #e8c0c0; }
+.result-card.gris  { background: var(--surface2);  }
+.res-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); }
+.result-card.verde .res-label { color: var(--green); }
+.result-card.rojo  .res-label { color: var(--red); }
+.result-card.gris  .res-label { color: var(--muted); }
+.res-amount { font-size: 48px; font-weight: 300; letter-spacing: -2px; font-family: var(--mono); margin: 6px 0 2px; line-height: 1; }
+.result-card.verde .res-amount { color: var(--green); }
+.result-card.rojo  .res-amount { color: var(--red); }
+.result-card.gris  .res-amount { color: var(--muted); }
+.res-sub { font-size: 12px; color: var(--muted); }
+
+/* Proyeccion aviso */
+.proj-notice { display: flex; align-items: center; gap: 8px; background: var(--amber-bg); border: 1px solid #e8d898; border-radius: 10px; padding: .75rem 1rem; margin-bottom: 1rem; font-size: 12px; color: var(--amber); line-height: 1.5; }
+.proj-notice span { font-size: 16px; }
+
+/* Desglose */
+.desglose { margin-top: 1rem; }
+.sec-sep { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--border2); padding: 10px 0 5px; font-family: var(--mono); }
+.dr { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; padding: 4px 0; border-bottom: 1px solid var(--surface2); }
+.dr:last-child { border-bottom: none; }
+.dk { color: var(--muted); }
+.dv { font-family: var(--mono); font-size: 12px; text-align: right; }
+.dtot { font-weight: 600; font-size: 13px; border-top: 1px solid var(--border2) !important; border-bottom: none !important; margin-top: 3px; padding-top: 7px !important; }
+.dtot .dk { color: var(--text); }
+.dtot2 { font-weight: 500; border-top: 1px dashed var(--border) !important; border-bottom: none !important; margin-top: 2px; padding-top: 5px !important; }
+
+/* Barra progreso año */
+.year-bar-wrap { margin-bottom: 1rem; }
+.year-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+.year-bar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.year-bar-fill { height: 100%; background: var(--text); border-radius: 99px; transition: width .4s; }
+
+/* Totales rápidos */
+.quick-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.qs { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .75rem; }
+.qs-label { font-size: 10px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; font-family: var(--mono); }
+.qs-value { font-size: 18px; font-weight: 500; font-family: var(--mono); margin-top: 3px; letter-spacing: -.5px; }
+.qs-sub { font-size: 10px; color: var(--border2); font-family: var(--mono); }
+
+/* Pagas extras */
+.extras-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.extras-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-family: var(--mono); }
+.btn-add { font-size: 12px; font-weight: 500; color: var(--text); background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 5px 12px; cursor: pointer; font-family: var(--sans); }
+.btn-add:hover { background: var(--border); }
+.extra-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+.extra-row input[type=text] { padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--surface2); outline: none; font-family: var(--sans); width: 100%; }
+.extra-row input[type=text]:focus { background: var(--surface); border-color: var(--text); }
+.extra-row input[type=number] { padding: 7px 10px; font-size: 13px; text-align: right; }
+.btn-del { background: none; border: none; color: var(--border2); font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+.btn-del:hover { color: var(--red); }
+.extras-empty { font-size: 12px; color: var(--border2); text-align: center; padding: 12px 0; font-style: italic; }
+.extras-col-labels { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; margin-bottom: 4px; }
+.extras-col-labels span { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-family: var(--mono); }
+.extras-col-labels span:nth-child(2), .extras-col-labels span:nth-child(3) { text-align: right; }
+
+/* Botón */
+.btn { width: 100%; padding: 14px; background: var(--text); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: var(--sans); margin-bottom: 1rem; letter-spacing: -.2px; }
+.btn:active { opacity: .85; }
+
+.aviso { font-size: 11px; color: var(--border2); line-height: 1.6; margin-top: .5rem; }
+
+/* Perfiles */
+.profile-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.profile-select-wrap { flex: 1; min-width: 140px; position: relative; }
+.profile-select-wrap select { width: 100%; padding: 8px 32px 8px 12px; font-size: 14px; font-weight: 500; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); font-family: var(--sans); cursor: pointer; appearance: none; outline: none; }
+.profile-select-wrap select:focus { border-color: var(--text); }
+.profile-select-wrap::after { content: "▾"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted); font-size: 12px; }
+.profile-btn { padding: 8px 13px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); cursor: pointer; font-family: var(--sans); white-space: nowrap; }
+.profile-btn:hover { background: var(--surface2); }
+.profile-btn.danger { color: var(--red); border-color: #e8c0c0; }
+.profile-btn.danger:hover { background: var(--red-bg); }
+.saved-badge { font-size: 10px; font-family: var(--mono); color: var(--muted); padding: 3px 8px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); white-space: nowrap; transition: all .3s; }
+.saved-badge.flash { color: var(--green); border-color: #b8dfc4; background: var(--green-bg); }
+.panel { display: none; }
+.panel.active { display: block; }
+
+@media(max-width: 500px) { .g2,.g3,.quick-stats { grid-template-columns: 1fr; } }
+
+/* Tabla nóminas en móvil: tarjetas apiladas en vez de tabla ancha */
+@media(max-width: 560px) {
+  .month-grid, .month-grid tbody, .month-grid tr, .month-grid td { display: block; width: 100%; }
+  .month-grid thead { display: none; }
+  .month-grid tr {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px 8px;
+    margin-bottom: 8px;
+  }
+  .month-grid tr:not(:last-child) { margin-bottom: 8px; }
+  .month-grid tr td { border-bottom: none !important; padding: 5px 0; }
+  .month-grid tr td:first-child { padding-bottom: 8px; border-bottom: 1px solid var(--border) !important; margin-bottom: 4px; }
+  .month-grid tr td:first-child .month-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .month-grid td[data-label] { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .month-grid td[data-label]::before {
+    content: attr(data-label);
+    font-size: 11px; color: var(--muted); font-weight: 500; flex-shrink: 0;
+  }
+  .month-grid td[data-label] input[type=number] {
+    max-width: 150px; text-align: right; background: var(--surface);
+  }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>Renta Bizkaia 2025</h1>
+    <p>Proyeccion declaracion IRPF · Norma Foral 13/2013</p>
+  </div>
+
+  <div class="profile-bar">
+    <div class="profile-select-wrap">
+      <select id="profile-select" onchange="loadProfile()"></select>
+    </div>
+    <button class="profile-btn" onclick="newProfile()">+ Nuevo</button>
+    <button class="profile-btn" onclick="renameProfile()">Renombrar</button>
+    <button class="profile-btn danger" onclick="deleteProfile()">Borrar</button>
+    <button class="profile-btn" onclick="exportProfile()" title="Descargar copia de seguridad del perfil activo">⬇ Backup</button>
+    <button class="profile-btn" onclick="g('import-file').click()" title="Restaurar un perfil desde un archivo de backup">⬆ Restaurar</button>
+    <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="importProfile(event)">
+    <span class="saved-badge" id="saved-badge">guardado</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('nominas')">Nominas</button>
+    <button class="tab" onclick="showTab('personal')">Personal</button>
+    <button class="tab" onclick="showTab('resultado')">Resultado</button>
+  </div>
+
+  <!-- TAB NOMINAS -->
+  <div id="tab-nominas" class="panel active">
+
+    <div id="year-bar-wrap" class="year-bar-wrap">
+      <div class="year-bar-label">
+        <span id="bar-label-left">Meses introducidos</span>
+        <span id="bar-label-right"></span>
+      </div>
+      <div class="year-bar"><div class="year-bar-fill" id="year-bar-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Nominas mensuales 2025 — bruto y retencion</div>
+      <table class="month-grid">
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th>Bruto (EUR)</th>
+            <th>Retencion (EUR)</th>
+            <th>SS obrero (EUR)</th>
+            <th>EPSV emp. (EUR)</th>
+          </tr>
+        </thead>
+        <tbody id="month-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="extras-header">
+        <span class="extras-title">Pagas extraordinarias</span>
+        <button class="btn-add" onclick="addExtra()">+ Añadir paga</button>
+      </div>
+      <div class="extras-col-labels">
+        <span>Nombre</span><span>Bruto (EUR)</span><span>Retencion (EUR)</span><span></span>
+      </div>
+      <div id="extras-list"></div>
+      <div id="extras-empty" class="extras-empty">Sin pagas extras. Pulsa &quot;+ Añadir paga&quot; para agregar.</div>
+    </div>
+
+    <div class="quick-stats" id="quick-stats">
+      <div class="qs">
+        <div class="qs-label">Bruto acum.</div>
+        <div class="qs-value" id="qs-bruto">—</div>
+        <div class="qs-sub" id="qs-bruto-sub"></div>
+      </div>
+      <div class="qs">
+        <div class="qs-label">Retencion acum.</div>
+        <div class="qs-value" id="qs-ret">—</div>
+        <div class="qs-sub" id="qs-ret-sub"></div>
+      </div>
+      <div class="qs">
+        <div class="qs-label">% ret. medio</div>
+        <div class="qs-value" id="qs-pct">—</div>
+        <div class="qs-sub" id="qs-pct-sub"></div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="showTab('resultado')">Ver proyeccion →</button>
+  </div>
+
+  <!-- TAB PERSONAL -->
+  <div id="tab-personal" class="panel">
+
+    <div class="card">
+      <div class="card-title">Rendimientos de trabajo</div>
+      <div class="g2">
+        <div class="f">
+          <label class="lbl">Bonificacion rendimientos trabajo (EUR)</label>
+          <input type="number" id="bon" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()" readonly style="background:var(--surface2); color:var(--muted);">
+          <span class="hlbl" id="bon-info">Calculada automaticamente segun tus rendimientos (Art. 23 NF 13/2013): 8.000 EUR hasta 14.800 EUR de rendimiento, decreciente hasta 23.000 EUR, y 3.000 EUR por encima.</span>
+          <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); margin-top:4px; cursor:pointer;">
+            <input type="checkbox" id="bon_manual" onchange="toggleBonManual()" style="width:auto;">
+            Ajustar manualmente (si tu borrador de Hacienda indica un importe distinto)
+          </label>
+        </div>
+
+      </div>
+      <div class="g2 mt">
+        <div class="f">
+          <label class="lbl">Ingresos 2º pagador (EUR/ano)</label>
+          <input type="number" id="p2" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="f">
+          <label class="lbl">Retenciones 2º pagador (EUR/ano)</label>
+          <input type="number" id="p2ret" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Reducciones sobre la base</div>
+      <div class="g2">
+        <div class="f">
+          <label class="lbl">Aportacion EPSV / Plan pensiones propia (EUR/ano)</label>
+          <input type="number" id="eps" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="f">
+          <label class="lbl">Tipo EPSV</label>
+          <select id="epst" onchange="calcular()">
+            <option value="5000">Individual (max. 5.000 EUR)</option>
+            <option value="8000">Empresa (max. 8.000 EUR)</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2 mt">
+        <div class="f">
+          <label class="lbl">Situacion tributaria</label>
+          <select id="sit" onchange="calcular()">
+            <option value="ind">Individual</option>
+            <option value="con">Conjunta (matrimonio/pareja) · -4.800 EUR</option>
+            <option value="mon">Monoparental · -4.169 EUR</option>
+          </select>
+        </div>
+        <div class="f">
+          <label class="lbl">Pensiones compensatorias (EUR/ano)</label>
+          <input type="number" id="pencomp" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Situacion personal y familiar</div>
+      <div class="g2">
+        <div class="f">
+          <label class="lbl">Edad del titular</label>
+          <select id="edad" onchange="calcular()">
+            <option value="m36">Menor de 36</option>
+            <option value="m65" selected>36 a 65 anos</option>
+            <option value="m75">65 a 75 anos</option>
+            <option value="p75">Mas de 75 anos</option>
+          </select>
+        </div>
+        <div class="f">
+          <label class="lbl">Discapacidad / dependencia</label>
+          <select id="dis" onchange="calcular()">
+            <option value="0">Sin discapacidad</option>
+            <option value="816">33-64% · 816 EUR</option>
+            <option value="1165">65% dep. moderada · 1.165 EUR</option>
+            <option value="1397">75% dep. severa · 1.397 EUR</option>
+            <option value="1743">75% gran dependencia · 1.743 EUR</option>
+          </select>
+        </div>
+      </div>
+      <div class="g3 mt">
+        <div class="f">
+          <label class="lbl">Hijos a cargo</label>
+          <select id="hij" onchange="calcular()">
+            <option value="0">Ninguno</option>
+            <option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4 o mas</option>
+          </select>
+        </div>
+        <div class="f">
+          <label class="lbl">Menores de 6 anos</label>
+          <select id="hij6" onchange="calcular()">
+            <option value="0">Ninguno</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3+</option>
+          </select>
+        </div>
+        <div class="f">
+          <label class="lbl">Ascendientes a cargo</label>
+          <select id="asc" onchange="calcular()">
+            <option value="0">Ninguno</option>
+            <option value="1">1</option><option value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Vivienda habitual</div>
+      <div class="g2">
+        <div class="f">
+          <label class="lbl">Tipo</label>
+          <select id="viv" onchange="toggleViv()">
+            <option value="no">Sin deduccion</option>
+            <option value="alq">Alquiler</option>
+            <option value="com">Propiedad con hipoteca</option>
+            <option value="cvi">Cuenta vivienda (menores 36)</option>
+          </select>
+        </div>
+        <div class="f" id="dviv" style="display:none">
+          <label class="lbl" id="lviv">Importe anual (EUR)</label>
+          <input type="number" id="vimp" placeholder="0" min="0" step="0.01" oninput="calcular()">
+          <span class="hlbl" id="hviv"></span>
+        </div>
+      </div>
+      <div class="g2 mt" id="damort" style="display:none">
+        <div class="f">
+          <label class="lbl">Amortizacion anticipada extra (EUR)</label>
+          <input type="number" id="vamort" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()">
+          <span class="hlbl">Capital extra devuelto este ano, aparte de las cuotas normales. Cuenta para la misma deduccion y el mismo limite.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Otras deducciones en cuota</div>
+      <div class="g2">
+        <div class="f">
+          <label class="lbl">Cuotas sindicales anuales (EUR)</label>
+          <input type="number" id="sind" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()">
+          <span class="hlbl">Deduccion: 20% del importe</span>
+        </div>
+        <div class="f">
+          <label class="lbl">Donativos (EUR)</label>
+          <input type="number" id="don" placeholder="0" min="0" step="0.01" value="0" oninput="calcular()">
+          <span class="hlbl">20% hasta 150 EUR · 25% sobre el resto</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Análisis del tipo de retención IRPF</div>
+      <div class="desglose">
+        <div class="dr"><span class="dk">Tipo de retención actual</span><span class="dv" id="ana-actual">—</span></div>
+        <div class="dr"><span class="dk">Cuota líquida estimada (lo que realmente debes)</span><span class="dv" id="ana-cuota">—</span></div>
+        <div class="dr dtot"><span class="dk">Tipo de retención necesario para no pagar</span><span class="dv" id="ana-necesario">—</span></div>
+      </div>
+      <p class="aviso" id="ana-texto" style="margin-top:10px; font-size:12px; color:var(--text); line-height:1.6;">Introduce tus datos en la pestana Nominas para ver el analisis.</p>
+    </div>
+
+    <button class="btn" onclick="showTab('resultado')">Ver proyeccion →</button>
+  </div>
+
+  <!-- TAB RESULTADO -->
+  <div id="tab-resultado" class="panel">
+
+    <div id="proj-notice" class="proj-notice" style="display:none">
+      <span>⚠</span>
+      <div id="proj-notice-text"></div>
+    </div>
+
+    <div id="result-card" class="result-card gris">
+      <div class="res-label" id="rlbl">Introduce datos en la pestana Nominas</div>
+      <div class="res-amount" id="ramt">—</div>
+      <div class="res-sub" id="rsub"></div>
+    </div>
+
+    <div id="desglose-wrap" style="display:none">
+      <div class="card">
+        <div class="card-title">Desglose del calculo</div>
+        <div class="desglose">
+
+          <div class="sec-sep">Rendimientos de trabajo</div>
+          <div class="dr"><span class="dk">Ingresos trabajo personal</span><span class="dv" id="xing"></span></div>
+          <div class="dr" id="xp2r" style="display:none"><span class="dk">Ingresos 2º pagador</span><span class="dv" id="xp2v"></span></div>
+          <div class="dr"><span class="dk">Gastos trabajo personal (SS)</span><span class="dv" id="xgss"></span></div>
+          <div class="dr" id="xbonr" style="display:none"><span class="dk">Bonificacion rendimientos trabajo</span><span class="dv" id="xbonv"></span></div>
+          <div class="dr dtot2"><span class="dk">Rendimiento neto trabajo personal</span><span class="dv" id="xrnt"></span></div>
+          <div class="dr dtot"><span class="dk">Base imponible general</span><span class="dv" id="xbig"></span></div>
+
+          <div class="sec-sep">Reducciones</div>
+          <div class="dr" id="xpenr" style="display:none"><span class="dk">Reduc. pensiones compensatorias</span><span class="dv" id="xpenv"></span></div>
+          <div class="dr" id="xepsr" style="display:none"><span class="dk">Reduc. aportacion prev. social (EPSV)</span><span class="dv" id="xepsv"></span></div>
+          <div class="dr" id="xconr" style="display:none"><span class="dk">Reduc. tributacion conjunta/monop.</span><span class="dv" id="xconv"></span></div>
+          <div class="dr dtot"><span class="dk">Base liquidable general</span><span class="dv" id="xbl"></span></div>
+
+          <div class="sec-sep">Cuota integra</div>
+          <div class="dr"><span class="dk">Cuota integra previa (tarifa)</span><span class="dv" id="xcip"></span></div>
+          <div class="dr"><span class="dk">Tipo medio general</span><span class="dv" id="xtm"></span></div>
+          <div class="dr"><span class="dk">Minoracion de cuota</span><span class="dv">-1.583,00 EUR</span></div>
+          <div class="dr dtot"><span class="dk">Cuota integra general</span><span class="dv" id="xcig"></span></div>
+
+          <div class="sec-sep">Deducciones</div>
+          <div class="dr" id="xhijr" style="display:none"><span class="dk">Descendientes</span><span class="dv" id="xhijv"></span></div>
+          <div class="dr" id="xh6r" style="display:none"><span class="dk">Descendientes menores 6 anos</span><span class="dv" id="xh6v"></span></div>
+          <div class="dr" id="xascr" style="display:none"><span class="dk">Ascendientes</span><span class="dv" id="xascv"></span></div>
+          <div class="dr" id="xedar" style="display:none"><span class="dk">Por edad (65+)</span><span class="dv" id="xedav"></span></div>
+          <div class="dr" id="xdisr" style="display:none"><span class="dk">Discapacidad o dependencia</span><span class="dv" id="xdisv"></span></div>
+          <div class="dr" id="xvivr" style="display:none"><span class="dk">Vivienda habitual</span><span class="dv" id="xvivv"></span></div>
+          <div class="dr" id="xsindr" style="display:none"><span class="dk">Cuotas sindicales (20%)</span><span class="dv" id="xsindv"></span></div>
+          <div class="dr" id="xdonr" style="display:none"><span class="dk">Donativos</span><span class="dv" id="xdonv"></span></div>
+          <div class="dr dtot"><span class="dk">Suma deducciones</span><span class="dv" id="xsumd"></span></div>
+
+          <div class="sec-sep">Resultado</div>
+          <div class="dr dtot"><span class="dk">Cuota liquida</span><span class="dv" id="xliq"></span></div>
+          <div class="dr"><span class="dk">Retenciones e ingresos a cuenta</span><span class="dv" id="xretv"></span></div>
+          <div class="dr dtot"><span class="dk">Resultado declaracion</span><span class="dv" id="xdif"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="comp-card">
+      <div class="card-title">Comparador · EPSV vs amortizar hipoteca</div>
+      <div class="g2">
+        <div class="f">
+          <label class="lbl">Cantidad a destinar (EUR)</label>
+          <input type="number" id="compimp" placeholder="0" min="0" step="0.01" value="0" oninput="calcularComparador()">
+        </div>
+      </div>
+      <div class="desglose mt" id="comp-result" style="display:none">
+        <div class="sec-sep">Si va a EPSV</div>
+        <div class="dr"><span class="dk">Margen disponible este ano</span><span class="dv" id="cp-eps-margen"></span></div>
+        <div class="dr"><span class="dk">Importe que reduce la base</span><span class="dv" id="cp-eps-aplica"></span></div>
+        <div class="dr dtot2"><span class="dk">Ahorro fiscal estimado</span><span class="dv" id="cp-eps-ahorro"></span></div>
+
+        <div class="sec-sep">Si amortiza hipoteca</div>
+        <div class="dr" id="cp-am-avisor" style="display:none"><span class="dk" id="cp-am-aviso"></span><span class="dv"></span></div>
+        <div class="dr" id="cp-am-margenr"><span class="dk">Margen disponible en la deduccion</span><span class="dv" id="cp-am-margen"></span></div>
+        <div class="dr" id="cp-am-aplicar"><span class="dk">Importe que entra en la deduccion</span><span class="dv" id="cp-am-aplica"></span></div>
+        <div class="dr dtot2" id="cp-am-ahorror"><span class="dk">Ahorro fiscal estimado</span><span class="dv" id="cp-am-ahorro"></span></div>
+
+        <div class="sec-sep">Conclusion</div>
+        <div class="dr dtot"><span class="dk" id="cp-concl-lbl">Diferencia (EPSV − amortizacion)</span><span class="dv" id="cp-concl-val"></span></div>
+      </div>
+      <p class="aviso">* Compara solo el ahorro fiscal en esta declaracion, dado el hueco que te queda en cada limite (EPSV: hasta tu maximo anual; hipoteca: hasta el limite de base de la deduccion por vivienda). No tiene en cuenta el interes del prestamo que te ahorras al amortizar, ni la rentabilidad futura de la EPSV, ni la liquidez: amortizar libera cuota mensual, la EPSV queda bloqueada hasta jubilacion u otras contingencias.</p>
+    </div>
+
+    <p class="aviso">* Estimacion orientativa (Norma Foral 13/2013, Bizkaia, IRPF 2025). Los meses futuros se proyectan con la media de los meses introducidos. No incluye rentas del ahorro ni ganancias patrimoniales. No sustituye asesoramiento fiscal profesional.</p>
+  </div>
+</div>
+
+<script>
+var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var MES_ACTUAL = new Date().getMonth(); // 0-based, mayo = 4
+
+var TRAMOS = [
+  {base:0,      cuota:0,        tipo:0.23},
+  {base:17720,  cuota:4075.60,  tipo:0.28},
+  {base:35440,  cuota:9033.60,  tipo:0.35},
+  {base:53160,  cuota:15245.60, tipo:0.40},
+  {base:75870,  cuota:24333.60, tipo:0.45},
+  {base:105010, cuota:37455.10, tipo:0.46},
+  {base:140020, cuota:53565.70, tipo:0.47},
+  {base:204280, cuota:83760.50, tipo:0.49}
+];
+
+function tarifa(bl) {
+  if (bl <= 0) return 0;
+  for (var i = TRAMOS.length - 1; i >= 0; i--) {
+    if (bl > TRAMOS[i].base) return TRAMOS[i].cuota + (bl - TRAMOS[i].base) * TRAMOS[i].tipo;
+  }
+  return 0;
+}
+
+function fmt(n, decimals) {
+  if (decimals === undefined) decimals = 2;
+  return n.toLocaleString('es-ES', {minimumFractionDigits:decimals, maximumFractionDigits:decimals}) + ' EUR';
+}
+function neg(n) { return '−' + fmt(Math.abs(n)); }
+function pct(n) { return n.toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%'; }
+function g(id) { return document.getElementById(id); }
+function sr(id, show) { g(id).style.display = show ? 'flex' : 'none'; }
+function sv(id, txt) { g(id).textContent = txt; }
+
+var extraCount = 0;
+var ULTIMO = {};
+
+function addExtra(nombre, bruto, ret) {
+  var id = extraCount++;
+  var list = g('extras-list');
+  var div = document.createElement('div');
+  div.className = 'extra-row';
+  div.id = 'extra-row-' + id;
+  div.innerHTML =
+    '<input type="text" id="ex_nom_' + id + '" placeholder="ej. Paga julio" value="' + (nombre||'') + '" oninput="calcular()">' +
+    '<input type="number" id="ex_bruto_' + id + '" placeholder="0" min="0" step="0.01" value="' + (bruto||'') + '" oninput="calcular()">' +
+    '<input type="number" id="ex_ret_' + id + '" placeholder="0" min="0" step="0.01" value="' + (ret||'') + '" oninput="calcular()">' +
+    '<button class="btn-del" onclick="removeExtra(' + id + ')" title="Eliminar">×</button>';
+  list.appendChild(div);
+  g('extras-empty').style.display = 'none';
+  calcular();
+}
+
+function removeExtra(id) {
+  var row = g('extra-row-' + id);
+  if (row) row.remove();
+  var list = g('extras-list');
+  if (!list.querySelector('.extra-row')) g('extras-empty').style.display = 'block';
+  calcular();
+}
+
+function getExtrasData() {
+  var totalBruto = 0, totalRet = 0;
+  document.querySelectorAll('.extra-row').forEach(function(row) {
+    var id = row.id.replace('extra-row-', '');
+    totalBruto += parseFloat(g('ex_bruto_' + id).value) || 0;
+    totalRet   += parseFloat(g('ex_ret_'   + id).value) || 0;
+  });
+  return { totalBruto: totalBruto, totalRet: totalRet };
+}
+
+// --- Construccion de la tabla de nominas ---
+function buildMonthTable() {
+  var tbody = g('month-tbody');
+  tbody.innerHTML = '';
+  for (var i = 0; i < 12; i++) {
+    var isFuture = i > MES_ACTUAL;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="month-name-wrap"><span class="month-name' + (isFuture ? ' future' : '') + '">' + MESES[i] + '</span>' + (isFuture ? '<span class="proj-badge">est.</span>' : '') + '</span></td>' +
+      '<td data-label="Bruto (EUR)"><input type="number" id="m_bruto_' + i + '" placeholder="' + (isFuture ? 'proyectado' : '0') + '" min="0" step="0.01" oninput="onMonthInput(' + i + ')" class="' + (isFuture ? 'projected' : '') + '"></td>' +
+      '<td data-label="Retencion (EUR)"><input type="number" id="m_ret_' + i + '" placeholder="' + (isFuture ? 'proyectado' : '0') + '" min="0" step="0.01" oninput="onMonthInput(' + i + ')" class="' + (isFuture ? 'projected' : '') + '"></td>' +
+      '<td data-label="SS obrero (EUR)"><input type="number" id="m_ss_' + i + '" placeholder="' + (isFuture ? 'proyectado' : '0') + '" min="0" step="0.01" oninput="onMonthInput(' + i + ')" class="' + (isFuture ? 'projected' : '') + '"></td>' +
+      '<td data-label="EPSV emp. (EUR)"><input type="number" id="m_eps_' + i + '" placeholder="0" min="0" step="0.01" oninput="onMonthInput(' + i + ')"></td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function onMonthInput(idx) {
+  // Si el usuario introduce un mes futuro manualmente, quitamos el estilo proyectado
+  ['bruto','ret','ss','eps'].forEach(function(k) {
+    var el = g('m_' + k + '_' + idx);
+    if (el.value !== '') el.classList.remove('projected');
+    else if (idx > MES_ACTUAL) el.classList.add('projected');
+  });
+  calcular();
+}
+
+function getMonthData() {
+  // Recopila datos reales (meses introducidos) y calcula media para proyectar
+  var real = { bruto:[], ret:[], ss:[], eps:[] };
+  for (var i = 0; i <= MES_ACTUAL; i++) {
+    var b = parseFloat(g('m_bruto_' + i).value);
+    var r = parseFloat(g('m_ret_' + i).value);
+    var s = parseFloat(g('m_ss_' + i).value);
+    var e = parseFloat(g('m_eps_' + i).value);
+    if (!isNaN(b) && b > 0) real.bruto.push(b); else real.bruto.push(0);
+    if (!isNaN(r) && r > 0) real.ret.push(r);   else real.ret.push(0);
+    if (!isNaN(s) && s > 0) real.ss.push(s);     else real.ss.push(0);
+    if (!isNaN(e) && e > 0) real.eps.push(e);    else real.eps.push(0);
+  }
+
+  var nReal = MES_ACTUAL + 1;
+  var totalBrutoReal = real.bruto.reduce(function(a,b){return a+b;},0);
+  var totalRetReal   = real.ret.reduce(function(a,b){return a+b;},0);
+  var totalSsReal    = real.ss.reduce(function(a,b){return a+b;},0);
+  var totalEpsReal   = real.eps.reduce(function(a,b){return a+b;},0);
+
+  var avgBruto = nReal > 0 ? totalBrutoReal / nReal : 0;
+  var avgRet   = nReal > 0 ? totalRetReal   / nReal : 0;
+  var avgSs    = nReal > 0 ? totalSsReal    / nReal : 0;
+  var avgEps   = nReal > 0 ? totalEpsReal   / nReal : 0;
+
+  // Meses futuros: usa valor manual si existe, si no proyecta
+  var totalBruto = totalBrutoReal;
+  var totalRet   = totalRetReal;
+  var totalSs    = totalSsReal;
+  var totalEps   = totalEpsReal;
+  var projected  = 0;
+
+  for (var j = MES_ACTUAL + 1; j < 12; j++) {
+    var mb = parseFloat(g('m_bruto_' + j).value);
+    var mr = parseFloat(g('m_ret_' + j).value);
+    var ms = parseFloat(g('m_ss_' + j).value);
+    var me = parseFloat(g('m_eps_' + j).value);
+    var hasManual = !isNaN(mb) && mb > 0;
+    totalBruto += hasManual ? mb  : avgBruto;
+    totalRet   += (!isNaN(mr) && mr > 0) ? mr : avgRet;
+    totalSs    += (!isNaN(ms) && ms > 0) ? ms : avgSs;
+    totalEps   += (!isNaN(me) && me > 0) ? me : avgEps;
+    if (!hasManual) projected++;
+  }
+
+  return {
+    totalBruto: totalBruto,
+    totalRet:   totalRet,
+    totalSs:    totalSs,
+    totalEps:   totalEps,
+    totalBrutoReal: totalBrutoReal,
+    totalRetReal:   totalRetReal,
+    nReal:          nReal,
+    avgBruto:       avgBruto,
+    avgRet:         avgRet,
+    projected:      projected
+  };
+}
+
+function updateQuickStats(d, ex) {
+  ex = ex || { totalBruto: 0, totalRet: 0 };
+  var brutoTotal = d.totalBrutoReal + ex.totalBruto;
+  var retTotal   = d.totalRetReal   + ex.totalRet;
+  var pctRet = brutoTotal > 0 ? (retTotal / brutoTotal * 100) : 0;
+  sv('qs-bruto', fmt(brutoTotal, 0).replace(' EUR',''));
+  sv('qs-bruto-sub', 'EUR (nominas + extras)');
+  sv('qs-ret',   fmt(retTotal, 0).replace(' EUR',''));
+  sv('qs-ret-sub', 'EUR retenidos');
+  sv('qs-pct',   pct(pctRet));
+  sv('qs-pct-sub', 'sobre bruto real');
+
+  // Barra
+  var pctBar = Math.round((d.nReal / 12) * 100);
+  g('year-bar-fill').style.width = pctBar + '%';
+  sv('bar-label-left', d.nReal + ' de 12 meses introducidos');
+  sv('bar-label-right', pctBar + '%');
+}
+
+function toggleViv() {
+  var v = g('viv').value;
+  g('dviv').style.display = v === 'no' ? 'none' : 'flex';
+  g('damort').style.display = v === 'com' ? 'flex' : 'none';
+  if (v === 'alq') {
+    g('lviv').textContent = 'Alquiler anual pagado (EUR)';
+    g('hviv').textContent = '20% (30% si <36 años o conjunta), max. 1.600/2.400 EUR';
+  } else if (v === 'com') {
+    g('lviv').textContent = 'Cuotas normales: amortizacion + intereses (EUR)';
+    g('hviv').textContent = '18% (23% si <36 años o conjunta), max. 1.530/1.955 EUR sobre el conjunto (cuotas + amortizacion extra)';
+  } else if (v === 'cvi') {
+    g('lviv').textContent = 'Aportado a cuenta vivienda este año (EUR)';
+    g('hviv').textContent = '10% deduccion · max. 1.530 EUR (aportacion max. deducible: 15.300 EUR)';
+  }
+  calcular();
+}
+
+function updateRetAnalysis(ingTotal, retTotal, cl, dif, d) {
+  if (ingTotal <= 0) return;
+
+  var pctActual    = (retTotal / ingTotal) * 100;
+  var pctNecesario = (cl / ingTotal) * 100;
+  var remainingMonths = 12 - d.nReal;
+
+  sv('ana-actual', pct(pctActual));
+  sv('ana-cuota', fmt(cl));
+  sv('ana-necesario', pct(pctNecesario));
+
+  var texto;
+  if (Math.abs(dif) < 1) {
+    texto = 'Tu tipo de retencion actual (' + pct(pctActual) + ') coincide justo con el necesario (' +
+      pct(pctNecesario) + ') para cubrir tu cuota liquida de ' + fmt(cl) + '. El resultado queda equilibrado, ni pagas ni te devuelven.';
+  } else if (dif > 0) {
+    texto = 'Tu tipo de retencion actual (' + pct(pctActual) + ') ya es superior al minimo necesario (' +
+      pct(pctNecesario) + ') para cubrir tu cuota liquida de ' + fmt(cl) + '. Por eso el resultado te sale a devolver.';
+  } else {
+    var falta = -dif;
+    texto = 'Con tu retencion actual (' + pct(pctActual) + ') te faltan ' + fmt(falta) +
+      ' para cubrir tu cuota liquida de ' + fmt(cl) + '. Para que la declaracion te saliera a devolver, ' +
+      'tu empresa tendria que aplicarte un tipo de retencion de al menos ' + pct(pctNecesario) +
+      ' (en vez del ' + pct(pctActual) + ' actual).';
+    if (remainingMonths > 0 && d.avgBruto > 0) {
+      var extraPerMonth = falta / remainingMonths;
+      var pctMensualNecesario = (d.avgRet + extraPerMonth) / d.avgBruto * 100;
+      texto += ' En la practica, esto supondria subir la retencion en unos ' + fmt(extraPerMonth) +
+        ' mas al mes durante los ' + remainingMonths + ' meses que quedan (aprox. un ' + pct(pctMensualNecesario) +
+        ' sobre tu bruto mensual). Pide a RRHH un tipo algo mayor a ese, para tener margen y que te toque a devolver en vez de quedar justo a cero.';
+    } else if (remainingMonths <= 0) {
+      texto += ' Como ya no quedan meses por cobrar este ano, la retencion ya no se puede ajustar: la unica forma de lograr una devolucion seria reducir la cuota liquida (mas aportaciones a EPSV, deducciones, etc.) antes de presentar la declaracion.';
+    }
+  }
+  sv('ana-texto', texto);
+}
+
+// Bonificacion del rendimiento del trabajo (Art. 23 NF 13/2013, redacc. NF 2/2025)
+// dif = rendimiento integro del trabajo - gastos deducibles (SS), antes de bonificacion
+function bonificacionAutomatica(dif) {
+  if (dif <= 0) return 0;
+  if (dif <= 14800) return 8000;
+  if (dif <= 23000) return Math.max(0, 8000 - 0.6098 * (dif - 14800));
+  return 3000;
+}
+
+function toggleBonManual() {
+  var manual = g('bon_manual').checked;
+  var el = g('bon');
+  el.readOnly = !manual;
+  el.style.background = manual ? '' : 'var(--surface2)';
+  el.style.color = manual ? '' : 'var(--muted)';
+  calcular();
+}
+
+function calcular() {
+  var d = getMonthData();
+  var ex = getExtrasData();
+  updateQuickStats(d, ex);
+
+  if (d.totalBrutoReal <= 0) {
+    // Sin datos todavia
+    g('result-card').className = 'result-card gris';
+    sv('rlbl', 'Introduce datos en la pestana Nominas');
+    sv('ramt', '—');
+    sv('rsub', '');
+    g('desglose-wrap').style.display = 'none';
+    g('proj-notice').style.display = 'none';
+    sv('ana-actual', '—');
+    sv('ana-cuota', '—');
+    sv('ana-necesario', '—');
+    sv('ana-texto', 'Introduce tus datos en la pestana Nominas para ver el analisis.');
+    return;
+  }
+
+  // Aviso de proyeccion
+  if (d.projected > 0) {
+    g('proj-notice').style.display = 'flex';
+    sv('proj-notice-text',
+      d.projected + ' mes' + (d.projected > 1 ? 'es' : '') +
+      ' proyectado' + (d.projected > 1 ? 's' : '') +
+      ' con la media de los ' + d.nReal + ' meses introducidos (' +
+      fmt(d.avgBruto, 0) + '/mes). Actualiza cuando recibas cada nomina.'
+    );
+  } else {
+    g('proj-notice').style.display = 'none';
+  }
+
+  // Datos personales
+  var p2      = parseFloat(g('p2').value)      || 0;
+  var p2ret   = parseFloat(g('p2ret').value)   || 0;
+  var eplim   = parseInt(g('epst').value)      || 5000;
+  var eps     = Math.min(parseFloat(g('eps').value) || 0, eplim);
+  var sit     = g('sit').value;
+  var pencomp = parseFloat(g('pencomp').value) || 0;
+  var edad    = g('edad').value;
+  var dis     = parseFloat(g('dis').value)     || 0;
+  var hij     = parseInt(g('hij').value)       || 0;
+  var hij6    = parseInt(g('hij6').value)      || 0;
+  var asc     = parseInt(g('asc').value)       || 0;
+  var viv     = g('viv').value;
+  var vimp    = parseFloat(g('vimp').value)    || 0;
+  var vamort  = viv === 'com' ? (parseFloat(g('vamort').value) || 0) : 0;
+  var sind    = parseFloat(g('sind').value)    || 0;
+  var don     = parseFloat(g('don').value)     || 0;
+
+  // BASE GENERAL — nóminas + extras
+  // El bruto de nómina ya incluye la EPSV de empresa; la restamos explícitamente
+  var epsvEmp  = d.totalEps;
+  var ingTotal = d.totalBruto + ex.totalBruto + p2;
+  var rntPrevio = ingTotal - d.totalSs;
+
+  // Bonificacion: automatica segun rntPrevio, salvo que el usuario la ajuste a mano
+  var bonManual = g('bon_manual').checked;
+  var bon;
+  if (bonManual) {
+    bon = parseFloat(g('bon').value) || 0;
+  } else {
+    bon = bonificacionAutomatica(rntPrevio);
+    g('bon').value = bon ? bon.toFixed(2) : '0';
+  }
+
+  var bonReal   = Math.min(bon, rntPrevio);
+  var rnt       = rntPrevio - bonReal;
+  var big       = rnt;
+
+  // REDUCCIONES
+  var rc   = sit === 'con' ? 4800 : (sit === 'mon' ? 4169 : 0);
+  var epsr = Math.min(eps + epsvEmp, big);
+  var bl   = Math.max(0, big - pencomp - epsr - rc);
+
+  // CUOTA INTEGRA
+  var cip = tarifa(bl);
+  var tm  = bl > 0 ? (cip / bl * 100) : 0;
+  var cig = Math.max(0, cip - 1583);
+
+  // DEDUCCIONES
+  var TH  = [0, 613, 1372, 2652, 4165];
+  var dh  = TH[Math.min(hij, 4)];
+  var dh6 = hij6 * 353;
+  var da  = asc * 294;
+  var dd  = dis;
+
+  var de = 0;
+  if (edad === 'm75' || edad === 'p75') {
+    if (bl <= 20000) {
+      de = edad === 'm75' ? 352 : 642;
+    } else if (bl < 30000) {
+      de = edad === 'm75'
+        ? Math.max(0, 352 - 0.0352 * (bl - 20000))
+        : Math.max(0, 642 - 0.0642 * (bl - 20000));
+    }
+    de = Math.round(de * 100) / 100;
+  }
+
+  var col = edad === 'm36' || sit !== 'ind';
+  var dv  = 0;
+  if (viv === 'alq' && vimp > 0) {
+    dv = Math.min(vimp * (col ? 0.30 : 0.20), col ? 2400 : 1600);
+  } else if (viv === 'com' && (vimp + vamort) > 0) {
+    dv = Math.min((vimp + vamort) * (col ? 0.23 : 0.18), col ? 1955 : 1530);
+  } else if (viv === 'cvi' && vimp > 0) {
+    // Cuenta vivienda: 10%, max deduccion 1.530 EUR. Solo para menores de 36.
+    dv = edad === 'm36' ? Math.min(vimp * 0.10, 1530) : 0;
+  }
+
+  var ds   = sind * 0.20;
+  var dn   = don <= 150 ? don * 0.20 : 30 + (don - 150) * 0.25;
+  var sumd = dh + dh6 + da + dd + de + dv + ds + dn;
+
+  // CUOTA LIQUIDA
+  var cl       = Math.max(0, cig - sumd);
+  var retTotal = d.totalRet + ex.totalRet + p2ret;
+  var dif      = retTotal - cl;
+
+  // ANALISIS TIPO DE RETENCION
+  updateRetAnalysis(ingTotal, retTotal, cl, dif, d);
+
+  // RENDER RESULTADO
+  g('desglose-wrap').style.display = 'block';
+  var rc2 = g('result-card');
+  var amt = g('ramt');
+
+  if (Math.abs(dif) < 1) {
+    rc2.className = 'result-card gris';
+    sv('rlbl', 'Resultado equilibrado');
+    amt.textContent = '0,00 EUR';
+    sv('rsub', 'Ni pagas ni te devuelven');
+  } else if (dif > 0) {
+    rc2.className = 'result-card verde';
+    sv('rlbl', d.projected > 0 ? 'Proyeccion: A DEVOLVER' : 'Resultado: A DEVOLVER');
+    amt.textContent = '+' + fmt(dif);
+    sv('rsub', 'Hacienda te devolveria esta cantidad');
+  } else {
+    rc2.className = 'result-card rojo';
+    sv('rlbl', d.projected > 0 ? 'Proyeccion: A PAGAR' : 'Resultado: A PAGAR');
+    amt.textContent = '−' + fmt(Math.abs(dif));
+    sv('rsub', 'Tendrias que ingresar esta cantidad');
+  }
+
+  // DESGLOSE
+  sv('xing', fmt(ingTotal));
+  sr('xp2r', p2 > 0); sv('xp2v', '+' + fmt(p2));
+  sv('xgss', neg(d.totalSs));
+  sr('xbonr', bonReal > 0); sv('xbonv', neg(bonReal));
+  sv('xrnt', fmt(rnt));
+  sv('xbig', fmt(big));
+
+  sr('xpenr', pencomp > 0); sv('xpenv', neg(pencomp));
+  sr('xepsr', epsr > 0);    sv('xepsv', neg(epsr));
+  sr('xconr', rc > 0);      sv('xconv', neg(rc));
+  sv('xbl', fmt(bl));
+
+  sv('xcip', fmt(cip));
+  sv('xtm',  pct(tm));
+  sv('xcig', fmt(cig));
+
+  sr('xhijr',  dh > 0);  sv('xhijv',  neg(dh));
+  sr('xh6r',   dh6 > 0); sv('xh6v',   neg(dh6));
+  sr('xascr',  da > 0);  sv('xascv',  neg(da));
+  sr('xedar',  de > 0);  sv('xedav',  neg(de));
+  sr('xdisr',  dd > 0);  sv('xdisv',  neg(dd));
+  sr('xvivr',  dv > 0);  sv('xvivv',  neg(dv));
+  // Etiqueta dinámica según tipo vivienda
+  var vivLabel = viv === 'alq' ? 'Alquiler vivienda habitual'
+               : viv === 'com' ? 'Inversion vivienda habitual'
+               : viv === 'cvi' ? 'Cuenta vivienda (10%)'
+               : 'Vivienda habitual';
+  var xvivrDk = g('xvivr').querySelector('.dk');
+  if (xvivrDk) xvivrDk.textContent = vivLabel;
+  // Aviso si cuenta vivienda pero no es menor de 36
+  var avisoViv = g('aviso-cvi');
+  if (viv === 'cvi' && edad !== 'm36') {
+    if (!avisoViv) {
+      var el = document.createElement('div');
+      el.id = 'aviso-cvi';
+      el.style.cssText = 'font-size:11px;color:#7a5c00;background:#fdf8e6;border:1px solid #e8d898;border-radius:8px;padding:8px 12px;margin-top:8px;';
+      el.textContent = '⚠ La cuenta vivienda solo da deduccion a menores de 36 anos. Cambia la edad en la pestana Personal para aplicarla.';
+      g('dviv').parentNode.parentNode.appendChild(el);
+    }
+  } else if (avisoViv) {
+    avisoViv.remove();
+  }
+  sr('xsindr', ds > 0);  sv('xsindv', neg(ds));
+  sr('xdonr',  dn > 0);  sv('xdonv',  neg(dn));
+  sv('xsumd', sumd > 0 ? neg(sumd) : fmt(0));
+
+  sv('xliq',  fmt(cl));
+  sv('xretv', fmt(retTotal));
+  sv('xdif',  dif >= 0 ? '+' + fmt(dif) : '−' + fmt(Math.abs(dif)));
+
+  // Guardamos el estado para el comparador EPSV vs amortizacion
+  ULTIMO = {
+    eps: eps, eplim: eplim, epsvEmp: epsvEmp, big: big, cig: cig,
+    viv: viv, vimp: vimp, vamort: vamort, col: col
+  };
+  calcularComparador();
+}
+
+function calcularComparador() {
+  if (!ULTIMO.big && ULTIMO.big !== 0) return;
+  var extra = parseFloat(g('compimp').value) || 0;
+  if (extra <= 0) { g('comp-result').style.display = 'none'; return; }
+  g('comp-result').style.display = 'block';
+
+  // --- Escenario EPSV: reduce la base liquidable ---
+  var margenEps = Math.max(0, ULTIMO.eplim - ULTIMO.eps);
+  // Tambien limitado por lo que queda de rendimiento neto (big) tras lo ya reducido
+  margenEps = Math.max(0, Math.min(margenEps, ULTIMO.big - Math.min(ULTIMO.eps + ULTIMO.epsvEmp, ULTIMO.big)));
+  var aplicaEps = Math.min(extra, margenEps);
+  var blAntes = Math.max(0, ULTIMO.big - (ULTIMO.eps + ULTIMO.epsvEmp));
+  var blDespues = Math.max(0, blAntes - aplicaEps);
+  var ahorroEps = Math.max(0, tarifa(blAntes) - tarifa(blDespues));
+  sv('cp-eps-margen', fmt(margenEps, 0));
+  sv('cp-eps-aplica', fmt(aplicaEps, 0));
+  sv('cp-eps-ahorro', ahorroEps > 0 ? '−' + fmt(ahorroEps) : fmt(0));
+
+  // --- Escenario amortizacion hipoteca ---
+  var esCom = ULTIMO.viv === 'com';
+  g('cp-am-margenr').style.display = esCom ? 'flex' : 'none';
+  g('cp-am-aplicar').style.display = esCom ? 'flex' : 'none';
+  g('cp-am-ahorror').style.display = esCom ? 'flex' : 'none';
+  var ahorroAm = 0, aplicaAm = 0;
+  if (esCom) {
+    g('cp-am-avisor').style.display = 'none';
+    var rateViv = ULTIMO.col ? 0.23 : 0.18;
+    var capViv  = ULTIMO.col ? 1955 : 1530;
+    var baseCapViv = capViv / rateViv;
+    var margenAm = Math.max(0, baseCapViv - (ULTIMO.vimp + ULTIMO.vamort));
+    aplicaAm = Math.min(extra, margenAm);
+    ahorroAm = Math.min(aplicaAm * rateViv, Math.max(0, ULTIMO.cig));
+    sv('cp-am-margen', fmt(margenAm, 0));
+    sv('cp-am-aplica', fmt(aplicaAm, 0));
+    sv('cp-am-ahorro', ahorroAm > 0 ? '−' + fmt(ahorroAm) : fmt(0));
+  } else {
+    g('cp-am-avisor').style.display = 'flex';
+    sv('cp-am-aviso', 'Sin deduccion: elige "Propiedad con hipoteca" en Vivienda habitual para activarla');
+  }
+
+  var diff = ahorroEps - ahorroAm;
+  sv('cp-concl-val', (diff >= 0 ? '+' : '−') + fmt(Math.abs(diff)) + ' a favor de ' + (diff >= 0 ? 'EPSV' : 'amortizar'));
+}
+
+function showTab(name) {
+  ['nominas','personal','resultado'].forEach(function(t) {
+    g('tab-' + t).classList.toggle('active', t === name);
+    document.querySelectorAll('.tab')[['nominas','personal','resultado'].indexOf(t)]
+      .classList.toggle('active', t === name);
+  });
+  if (name === 'resultado') calcular();
+}
+
+// ============================================================
+// SISTEMA DE PERFILES Y PERSISTENCIA
+// ============================================================
+
+var STORAGE_KEY = 'renta_biz_profiles';
+var ACTIVE_KEY  = 'renta_biz_active';
+var _saving = false;
+
+function loadAllProfiles() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveAllProfiles(profiles) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+}
+function getActiveId() {
+  return localStorage.getItem(ACTIVE_KEY) || null;
+}
+function setActiveId(id) {
+  localStorage.setItem(ACTIVE_KEY, id);
+}
+
+function renderProfileSelect() {
+  var profiles = loadAllProfiles();
+  var activeId = getActiveId();
+  var sel = g('profile-select');
+  sel.innerHTML = '';
+  var ids = Object.keys(profiles);
+  if (ids.length === 0) return;
+  ids.forEach(function(id) {
+    var opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = profiles[id].name || id;
+    if (id === activeId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function collectFormData() {
+  // Nóminas mensuales
+  var nominas = [];
+  for (var i = 0; i < 12; i++) {
+    nominas.push({
+      bruto: g('m_bruto_' + i).value,
+      ret:   g('m_ret_'   + i).value,
+      ss:    g('m_ss_'    + i).value,
+      eps:   g('m_eps_'   + i).value
+    });
+  }
+  // Extras
+  var extras = [];
+  document.querySelectorAll('.extra-row').forEach(function(row) {
+    var id = row.id.replace('extra-row-', '');
+    extras.push({
+      nom:   g('ex_nom_'   + id) ? g('ex_nom_'   + id).value : '',
+      bruto: g('ex_bruto_' + id) ? g('ex_bruto_' + id).value : '',
+      ret:   g('ex_ret_'   + id) ? g('ex_ret_'   + id).value : ''
+    });
+  });
+  // Campos personales
+  var fields = ['bon','p2','p2ret','eps','epst','sit','pencomp','edad','dis','hij','hij6','asc','viv','vimp','vamort','sind','don','compimp'];
+  var personal = {};
+  fields.forEach(function(f) { personal[f] = g(f) ? g(f).value : ''; });
+  personal.bon_manual = g('bon_manual') ? g('bon_manual').checked : false;
+  return { nominas: nominas, extras: extras, personal: personal };
+}
+
+function applyFormData(data) {
+  if (!data) return;
+  // Nóminas
+  if (data.nominas) {
+    data.nominas.forEach(function(m, i) {
+      var isFuture = i > MES_ACTUAL;
+      ['bruto','ret','ss','eps'].forEach(function(k) {
+        var el = g('m_' + k + '_' + i);
+        if (!el) return;
+        el.value = m[k] || '';
+        if (isFuture) {
+          if (el.value) el.classList.remove('projected');
+          else el.classList.add('projected');
+        }
+      });
+    });
+  }
+  // Extras
+  g('extras-list').innerHTML = '';
+  extraCount = 0;
+  g('extras-empty').style.display = 'block';
+  if (data.extras && data.extras.length > 0) {
+    data.extras.forEach(function(ex) {
+      addExtra(ex.nom, ex.bruto, ex.ret);
+    });
+  }
+  // Personal
+  if (data.personal) {
+    var fields = ['bon','p2','p2ret','eps','epst','sit','pencomp','edad','dis','hij','hij6','asc','viv','vimp','vamort','sind','don','compimp'];
+    fields.forEach(function(f) {
+      var el = g(f);
+      if (el && data.personal[f] !== undefined) el.value = data.personal[f];
+    });
+    g('bon_manual').checked = !!data.personal.bon_manual;
+    var bonEl = g('bon');
+    bonEl.readOnly = !g('bon_manual').checked;
+    bonEl.style.background = g('bon_manual').checked ? '' : 'var(--surface2)';
+    bonEl.style.color = g('bon_manual').checked ? '' : 'var(--muted)';
+    toggleViv();
+  }
+}
+
+function autoSave() {
+  if (_saving) return;
+  var activeId = getActiveId();
+  if (!activeId) return;
+  var profiles = loadAllProfiles();
+  if (!profiles[activeId]) return;
+  profiles[activeId].data = collectFormData();
+  profiles[activeId].savedAt = Date.now();
+  saveAllProfiles(profiles);
+  // Flash badge
+  var badge = g('saved-badge');
+  badge.textContent = '✓ guardado';
+  badge.classList.add('flash');
+  clearTimeout(badge._t);
+  badge._t = setTimeout(function() {
+    badge.classList.remove('flash');
+    badge.textContent = 'guardado';
+  }, 1500);
+}
+
+function loadProfile() {
+  var sel = g('profile-select');
+  var id = sel.value;
+  if (!id) return;
+  setActiveId(id);
+  var profiles = loadAllProfiles();
+  _saving = true;
+  applyFormData(profiles[id] ? profiles[id].data : null);
+  _saving = false;
+  calcular();
+}
+
+function newProfile() {
+  var name = prompt('Nombre del nuevo perfil:', 'Perfil ' + (Object.keys(loadAllProfiles()).length + 1));
+  if (!name || !name.trim()) return;
+  var profiles = loadAllProfiles();
+  var id = 'p_' + Date.now();
+  profiles[id] = { name: name.trim(), data: null, savedAt: Date.now() };
+  saveAllProfiles(profiles);
+  setActiveId(id);
+  renderProfileSelect();
+  // Limpiar formulario
+  _saving = true;
+  buildMonthTable();
+  g('extras-list').innerHTML = '';
+  extraCount = 0;
+  g('extras-empty').style.display = 'block';
+  var fields = ['bon','p2','p2ret','eps','pencomp','vimp','vamort','sind','don','compimp'];
+  fields.forEach(function(f) { var el = g(f); if (el) el.value = '0'; });
+  g('bon_manual').checked = false;
+  g('bon').readOnly = true;
+  g('bon').style.background = 'var(--surface2)';
+  g('bon').style.color = 'var(--muted)';
+  g('epst').value = '5000';
+  g('sit').value  = 'ind';
+  g('edad').value = 'm65';
+  g('dis').value  = '0';
+  g('hij').value  = '0';
+  g('hij6').value = '0';
+  g('asc').value  = '0';
+  g('viv').value  = 'no';
+  toggleViv();
+  _saving = false;
+  calcular();
+}
+
+function renameProfile() {
+  var activeId = getActiveId();
+  if (!activeId) return;
+  var profiles = loadAllProfiles();
+  var current = profiles[activeId] ? profiles[activeId].name : '';
+  var name = prompt('Nuevo nombre:', current);
+  if (!name || !name.trim()) return;
+  profiles[activeId].name = name.trim();
+  saveAllProfiles(profiles);
+  renderProfileSelect();
+}
+
+function deleteProfile() {
+  var activeId = getActiveId();
+  if (!activeId) return;
+  var profiles = loadAllProfiles();
+  var name = profiles[activeId] ? profiles[activeId].name : activeId;
+  if (!confirm('¿Borrar el perfil "' + name + '"? Esta accion no se puede deshacer.')) return;
+  delete profiles[activeId];
+  saveAllProfiles(profiles);
+  var ids = Object.keys(profiles);
+  if (ids.length > 0) {
+    setActiveId(ids[ids.length - 1]);
+  } else {
+    localStorage.removeItem(ACTIVE_KEY);
+  }
+  renderProfileSelect();
+  loadProfile();
+  if (ids.length === 0) {
+    // No quedan perfiles, crear uno por defecto
+    newProfile();
+  }
+}
+
+// --- Copia de seguridad (exportar/importar perfil) ---
+function exportProfile() {
+  var activeId = getActiveId();
+  if (!activeId) { alert('No hay ningun perfil activo para exportar.'); return; }
+  var profiles = loadAllProfiles();
+  var profile = profiles[activeId];
+  if (!profile) { alert('No se encontro el perfil activo.'); return; }
+
+  var payload = {
+    app: 'renta_bizkaia',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    name: profile.name,
+    data: profile.data
+  };
+
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var safeName = (profile.name || 'perfil').replace(/[^a-zA-Z0-9_-]+/g, '_');
+  var fecha = new Date().toISOString().slice(0, 10);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'renta_bizkaia_backup_' + safeName + '_' + fecha + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importProfile(event) {
+  var file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var payload;
+    try {
+      payload = JSON.parse(e.target.result);
+    } catch (err) {
+      alert('El archivo no es un JSON valido.');
+      event.target.value = '';
+      return;
+    }
+    if (!payload || typeof payload !== 'object' || !payload.data) {
+      alert('El archivo no parece una copia de seguridad valida de esta app.');
+      event.target.value = '';
+      return;
+    }
+
+    var nombreSugerido = (payload.name || 'Perfil restaurado') + ' (restaurado)';
+    var nombreFinal = prompt('Nombre para el perfil restaurado:', nombreSugerido);
+    event.target.value = '';
+    if (!nombreFinal || !nombreFinal.trim()) return;
+
+    var profiles = loadAllProfiles();
+    var id = 'p_' + Date.now();
+    profiles[id] = { name: nombreFinal.trim(), data: payload.data, savedAt: Date.now() };
+    saveAllProfiles(profiles);
+    setActiveId(id);
+    renderProfileSelect();
+
+    _saving = true;
+    buildMonthTable();
+    applyFormData(profiles[id].data);
+    _saving = false;
+    calcular();
+
+    alert('Perfil restaurado correctamente desde la copia de seguridad.');
+  };
+  reader.onerror = function() {
+    alert('No se pudo leer el archivo.');
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// Patch calcular para autoguardar al final
+var _calcularOrig = calcular;
+calcular = function() {
+  _calcularOrig();
+  if (!_saving) autoSave();
+};
+
+// ============================================================
+// INIT
+// ============================================================
+(function init() {
+  buildMonthTable();
+  var profiles = loadAllProfiles();
+  var ids = Object.keys(profiles);
+  if (ids.length === 0) {
+    // Primera vez: crear perfil por defecto silenciosamente
+    var id = 'p_' + Date.now();
+    profiles[id] = { name: 'Mi perfil', data: null, savedAt: Date.now() };
+    saveAllProfiles(profiles);
+    setActiveId(id);
+  } else {
+    // Restaurar último activo
+    var activeId = getActiveId();
+    if (!activeId || !profiles[activeId]) {
+      setActiveId(ids[ids.length - 1]);
+    }
+    _saving = true;
+    applyFormData(profiles[getActiveId()].data);
+    _saving = false;
+  }
+  renderProfileSelect();
+  calcular();
+})();
+</script>
+</body>
+</html>
